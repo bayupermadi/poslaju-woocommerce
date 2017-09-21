@@ -2,7 +2,6 @@
  
 /**
  * Plugin Name: Poslaju Shipping
- * Plugin URI: http://code.poslaju.com/tutorials/create-a-custom-shipping-method-for-woocommerce--cms-26098
  * Description: Poslaju Shipping Method for WooCommerce
  * Version: 1.0.0
  * Author: Bayu Permadi
@@ -111,10 +110,17 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                     $total_ship_cost = 0;
                     $state = $package["destination"]["state"];
 
-                    $countries_obj   = new WC_Countries();
-                    $default_country = $countries_obj->get_base_country();
+                    $countries_obj      = new WC_Countries();
+                    $default_country    = $countries_obj->get_base_country();
                     $destination_states = $countries_obj->get_states( $default_country );
-
+                    $peninsular         = array("Perlis", "Kedah", "Penang", "Perak", "Kelantan", "Terengganu", "Pahang", "Selangor", 
+                                                "Negeri Sembilan", "Kuala Lumpur", "Putrajaya", "Melaka", "Johor");
+                    $sarak              = array("Sabah", "Sarawak");
+                    $peninsular_sabah   = array("Perlis", "Kedah", "Penang", "Perak", "Kelantan", "Terengganu", "Pahang", "Selangor", 
+                                                "Negeri Sembilan", "Kuala Lumpur", "Putrajaya", "Melaka", "Johor", "Sabah");
+                    $peninsular_sarawak = array("Perlis", "Kedah", "Penang", "Perak", "Kelantan", "Terengganu", "Pahang", "Selangor", 
+                                                "Negeri Sembilan", "Kuala Lumpur", "Putrajaya", "Melaka", "Johor", "Sarawak");
+                    
                     foreach ( $package['contents'] as $item_id => $values ) 
                     { 
                         $_product = $values['data']; 
@@ -125,44 +131,130 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                         //$weight = $weight + $_product->get_weight() * $values['quantity']; 
                         $weight = $_product->get_weight() * $values['quantity']; 
                         $weight = wc_get_weight( $weight, 'kg' );
+
+                        // ZONE 1 //
+
                         if ($destination_states[$state] == $vendor_city) {
-                          if(  $weight >= 0 && $weight <= 1 ) {
-                              $cost = 4.5;
+                          if(  $weight >= 0 && $weight <= 2 ) {
+                            if(  $weight >= 0 && $weight <= 0.5 ) {
+                                $cost = 4.41;
+                            }
+                            else {
+                                $additional_wght = $weight-0.5;
+                                $additional_cost = ceil($additional_wght/0.25)*1.01;
+                                $cost = 4.41+$additional_cost;
+                            }
                           }
-                          elseif(  $weight > 1 && $weight <= 2 ) {
-                              $cost = 9;
-                          } 
-                          elseif( $weight > 2 && $weight <= 2.5 ) {
-                              $cost = 9.5;
-                          } 
                           else {
-                              $additional_wght = $weight-2.5;
-                              $additional_cost = ceil($additional_wght/0.5)*0.5;
-                              $cost = 9.5+$additional_cost;
-                          }
+                            if(  $weight > 2 && $weight <= 2.5 ) {
+                                $cost = 11.97;
+                            }
+                            else {
+                                $additional_wght = $weight-2.5;
+                                $additional_cost = ceil($additional_wght/0.5)*0.63;
+                                $cost = 11.97+$additional_cost;
+                            }
+                          } 
                         }
-                        else {
-                          if(  $weight >= 0 && $weight <= 1 ) {
- 
-                              $cost = 7;
-       
-                          }
-                          elseif(  $weight > 1 && $weight <= 2 ) {
- 
-                              $cost = 14;
-       
-                          } 
-                          elseif( $weight > 2 && $weight <= 2.5 ) {
-       
-                              $cost = 16;
-       
-                          } 
-                          else {
-                              $additional_wght = $weight-2.5;
-                              $additional_cost = ceil($additional_wght/0.5)*1;
-                              $cost = 16+$additional_cost;
-       
-                          }
+
+                        // ZONE 2 //
+                        elseif ((in_array($destination_states[$state], $peninsular)) && (in_array($vendor_city, $peninsular)) ) {
+                            if(  $weight >= 0 && $weight <= 2 ) {
+                                if(  $weight >= 0 && $weight <= 0.5 ) {
+                                    $cost = 5.67;
+                                }
+                                else {
+                                    $additional_wght = $weight-0.5;
+                                    $additional_cost = ceil($additional_wght/0.25)*1.26;
+                                    $cost = 5.67+$additional_cost;
+                                }
+                              }
+                              else {
+                                if(  $weight > 2 && $weight <= 2.5 ) {
+                                    $cost = 20.16;
+                                }
+                                else {
+                                    $additional_wght = $weight-2.5;
+                                    $additional_cost = ceil($additional_wght/0.5)*2.52;
+                                    $cost = 20.16+$additional_cost;
+                                }
+                              } 
+                        }
+
+                        // ZONE 3 // 
+                        elseif ((in_array($destination_states[$state], $sarak)) && (in_array($vendor_city, $sarak)) ) {
+                            if(  $weight >= 0 && $weight <= 2 ) {
+                                if(  $weight >= 0 && $weight <= 0.5 ) {
+                                    $cost = 7.5;
+                                }
+                                else {
+                                    $additional_wght = $weight-0.5;
+                                    $additional_cost = ceil($additional_wght/0.25)*1.5;
+                                    $cost = 7.5+$additional_cost;
+                                }
+                              }
+                              else {
+                                if(  $weight > 2 && $weight <= 2.5 ) {
+                                    $cost = 26.25;
+                                }
+                                else {
+                                    $additional_wght = $weight-2.5;
+                                    $additional_cost = ceil($additional_wght/0.5)*3.76;
+                                    $cost = 26.25+$additional_cost;
+                                }
+                              } 
+                        }
+
+                        // ZONE 4 //
+                        elseif ((in_array($destination_states[$state], $peninsular_sarawak)) && (in_array($vendor_city, $peninsular_sarawak)) ) {
+                            if(  $weight >= 0 && $weight <= 2 ) {
+                                if(  $weight >= 0 && $weight <= 0.5 ) {
+                                    $cost = 8.19;
+                                }
+                                else {
+                                    $additional_wght = $weight-0.5;
+                                    $additional_cost = ceil($additional_wght/0.25)*1.89;
+                                    $cost = 8.19+$additional_cost;
+                                }
+                              }
+                              else {
+                                if(  $weight > 2 && $weight <= 2.5 ) {
+                                    $cost = 32.76;
+                                }
+                                else {
+                                    $additional_wght = $weight-2.5;
+                                    $additional_cost = ceil($additional_wght/0.5)*4.41;
+                                    $cost = 32.76+$additional_cost;
+                                }
+                              } 
+                        }
+
+                        // ZONE 5 //
+                        elseif ((in_array($destination_states[$state], $peninsular_sabah)) && (in_array($vendor_city, $peninsular_sabah)) ) {
+                            if(  $weight >= 0 && $weight <= 2 ) {
+                                if(  $weight >= 0 && $weight <= 0.5 ) {
+                                    $cost = 8.82;
+                                }
+                                else {
+                                    $additional_wght = $weight-0.5;
+                                    $additional_cost = ceil($additional_wght/0.25)*2.52;
+                                    $cost = 8.82+$additional_cost;
+                                }
+                              }
+                              else {
+                                if(  $weight > 2 && $weight <= 2.5 ) {
+                                    $cost = 39.05;
+                                }
+                                else {
+                                    $additional_wght = $weight-2.5;
+                                    $additional_cost = ceil($additional_wght/0.5)*5.04;
+                                    $cost = 39.05+$additional_cost;
+                                }
+                              } 
+                        }
+
+                        else{
+                            echo "Your destination is out of our service"
                         }
                         $total_ship_cost = $total_ship_cost + $cost;
                         
